@@ -4,7 +4,7 @@ const sequelize = require('../config/db.js');
 const commonRepo = require('../Repository/commonRepo.js');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../config/config'); 
-
+const crypto=require('crypto')
 exports.controller = (io) => {
     try {
         io.on('connection', (socket) => {
