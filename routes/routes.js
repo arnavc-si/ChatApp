@@ -9,7 +9,7 @@ router.get('/', (req, res) => {
     res.render('index');
 });
 
-router.get('/chat', auth.verifyToken,controller.verifyUser);
+router.get('/chat', controller.verifyUser,auth.verifyToken);
 router.post('/new', controller.newUser);
 router.post('/password', controller.update);
 router.post('/delete', controller.delete);

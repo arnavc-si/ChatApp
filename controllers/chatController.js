@@ -74,10 +74,10 @@ exports.authenticate = async (req, res) => {
             return res.redirect('/?alert=login-unsuccessful');
         }
         const token = jwt.sign({ username: usr.username }, JWT_SECRET, { expiresIn: '1m' });
+        req.session.user={username :usr.username, token: token}
         if (usr.username === "admin") {
             return res.render('data', { data: users, token:token });
         }
-        req.session.user={username :usr.username, token: token}
         return res.render('chat', {
             username: username,
             messages: messages,
@@ -187,10 +187,13 @@ exports.updateUserStatus = async (req, res) => {
 exports.verifyUser=async(req,res)=>{
     try{
       if(req.session.user){
-        console.log(req)
         const usr = await user.findOne({
         where: { username: req.session.user.username, is_deleted: 0 },
-        });
+        })
+        const users=await user.findAll();
+        if (usr.username === "admin") {
+            return res.render('data', { data: users, token:req.session.user.token });
+        }
         const messages = await message.findAll({
         include: { model: user, attributes: ['username'] },
         order: [['created_at', 'ASC']]
