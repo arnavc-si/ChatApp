@@ -3,38 +3,32 @@
   <title>Users Data</title>
   <link rel="stylesheet" href="/css/datastyle.css">
   <script >
-    function getToken() {
-    return document.getElementById('token').value;
-  }
-   function toggleUserDelete(userId) {
-    const isChecked = document.querySelector(`[data-user-id="${userId}"]`).checked;
-    const token = getToken(); 
-
-    const queryParams = new URLSearchParams({
-      userId: userId,
-      is_deleted: isChecked ? 0 : 1,
-      token: token  
-    });
-  console.log(`${queryParams.toString()}`)
-    console.log("token:",token)
-    fetch(`/user?${queryParams.toString()}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to update user status');
-      }
-      console.log(`User ${userId} status updated successfully`);
-    })
-    .catch(error => {
-      console.error('Error updating user status:', error);
-    });
-  }
-  </script>
+    function toggleUserDelete(userId) {
+     const isChecked = document.querySelector(`[data-user-id="${userId}"]`).checked;
+       var token= '<%=token%>';
+     const queryParams = new URLSearchParams({
+       userId: userId,
+       is_deleted: isChecked ? 0 : 1,
+       token: token  
+     });
+     fetch(`/user?${queryParams.toString()}`, {
+       method: 'GET',
+       headers: {
+         'Content-Type': 'application/json',
+         'Authorization': `Bearer ${token}`
+       },
+     })
+     .then(response => {
+       if (!response.ok) {
+         throw new Error('Failed to update user status');
+       }
+       console.log(`User ${userId} status updated successfully`);
+     })
+     .catch(error => {
+       console.error('Error updating user status:', error);
+     });
+   }
+   </script>
 </head>
 <body>
   <table border="1">

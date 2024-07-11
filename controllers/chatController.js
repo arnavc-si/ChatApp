@@ -77,12 +77,12 @@ exports.authenticate = async (req, res) => {
         if (usr.username === "admin") {
             return res.render('data', { data: users, token:token });
         }
-        req.session.user = { username: usr.username };
+        req.session.user={username :usr.username, token: token}
         return res.render('chat', {
             username: username,
             messages: messages,
             user: usr,
-            token
+            token:token
         });
     } catch (error) {
         console.error("Error authenticating user:", error);
@@ -165,6 +165,7 @@ exports.view = async (req, res) => {
 };
 
 exports.updateUserStatus = async (req, res) => {
+    try {
     const userId = req.query.userId;
     const is_deleted = req.query.is_deleted;
     const username=req.user.username;
@@ -173,7 +174,6 @@ exports.updateUserStatus = async (req, res) => {
     });
     console.log("user ID:", userId)
     console.log("is_deleted:", is_deleted)
-    try {
       const token = jwt.sign({ username: usr.username }, JWT_SECRET, { expiresIn: '1h' });
         await commonRepo.updateRecord(user, userId, { is_deleted: is_deleted });
         const users = await user.findAll();
@@ -183,3 +183,30 @@ exports.updateUserStatus = async (req, res) => {
         return res.status(500).send('Internal Server Error');
     }
 };
+
+exports.verifyUser=async(req,res)=>{
+    try{
+      if(req.session.user){
+        console.log(req)
+        const usr = await user.findOne({
+        where: { username: req.session.user.username, is_deleted: 0 },
+        });
+        const messages = await message.findAll({
+        include: { model: user, attributes: ['username'] },
+        order: [['created_at', 'ASC']]
+        });
+        res.render('chat', {
+        username: req.session.user.username,
+        messages: messages,
+        user:usr,
+        token:req.session.user.token
+        });
+    }
+     else{
+        res.redirect('/');
+     }
+   }catch(error){
+        console.error('Error updating user status:', error);
+        return res.status(500).send('Internal Server Error');
+    }
+}

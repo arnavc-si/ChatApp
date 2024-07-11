@@ -2,6 +2,19 @@
 <head>
   <title>Chat</title>
   <link rel="stylesheet" href="/css/chatstyles.css">
+  <script>
+    var token='<%=token%>'
+     document.addEventListener('DOMContentLoaded', function() {
+      fetch('/chat', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+           
+        });
+  </script>
 </head>
 <body>
   <div class="chat-container">
@@ -16,6 +29,7 @@
               <% } else { %>
                 <%= msg.user.username %>: <%= msg.message %>
               <% } %>
+              <input type="hidden" id="token" value="<%= token %>">
             </li>
           <% }); %>
         </ul>

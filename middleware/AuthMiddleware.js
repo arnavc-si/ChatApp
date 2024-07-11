@@ -2,7 +2,8 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../config/config');
 
 exports.verifyToken = (req, res, next) => {
-    const token = req.query.token || req.body.token ||'';
+    console.log(req)
+    const token = req.query.token || req.body.token ||req.session.user.token;
     if (!token) {
         return res.redirect('/');
     }
