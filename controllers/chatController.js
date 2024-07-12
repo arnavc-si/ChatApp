@@ -73,7 +73,7 @@ exports.authenticate = async (req, res) => {
         if (usr.password !== hashedPassword) {
             return res.redirect('/?alert=login-unsuccessful');
         }
-        const token = jwt.sign({ username: usr.username }, JWT_SECRET, { expiresIn: '1m' });
+        const token = jwt.sign({ username: usr.username }, JWT_SECRET, { expiresIn: '1h' });
         req.session.user={username :usr.username, token: token}
         if (usr.username === "admin") {
             return res.render('data', { data: users, token:token });
@@ -138,6 +138,7 @@ exports.delete = async (req, res) => {
 
 exports.view = async (req, res) => {
     try {
+        if(req.session.user.username==='admin'){
         const id = req.params.id;
         const usr = await user.findOne({
             where: { id: id }
@@ -151,13 +152,15 @@ exports.view = async (req, res) => {
             include: { model: user, attributes: ['username'] },
             order: [['created_at', 'ASC']]
         });
-        req.session.user = { id: admin.id };
-        console.log(req.session.user);
+        req.session.user = { id: admin.id,token:req.session.user.token,username:'admin'};
         return res.render('messages', {
             username: username,
             messages: messages,
             User: req.session.user
         });
+    }else{
+        res.redirect('/');
+    }
     } catch (error) {
         console.error("Error deleting record:", error);
         return res.status(500).send("Internal Server Error");
@@ -172,12 +175,10 @@ exports.updateUserStatus = async (req, res) => {
     const usr = await user.findOne({
       where: { username: username, is_deleted: 0 },
     });
-    console.log("user ID:", userId)
-    console.log("is_deleted:", is_deleted)
       const token = jwt.sign({ username: usr.username }, JWT_SECRET, { expiresIn: '1h' });
         await commonRepo.updateRecord(user, userId, { is_deleted: is_deleted });
         const users = await user.findAll();
-        return res.render('data', { data: users,token });
+        return res.render('data', { data: users,token:req.session.user.token });
     } catch (error) {
         console.error('Error updating user status:', error);
         return res.status(500).send('Internal Server Error');
