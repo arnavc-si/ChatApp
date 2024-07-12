@@ -137,6 +137,7 @@ exports.delete = async (req, res) => {
 };
 
 exports.view = async (req, res) => {
+    if(req.session.user){
     try {
         if(req.session.user.username==='admin'){
         const id = req.params.id;
@@ -165,6 +166,10 @@ exports.view = async (req, res) => {
         console.error("Error deleting record:", error);
         return res.status(500).send("Internal Server Error");
     }
+  }else{
+    res.redirect('/');
+  }
+
 };
 
 exports.updateUserStatus = async (req, res) => {
